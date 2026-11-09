@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game Library</title>
+<meta name="theme-color" content="#0b0b12">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{color-scheme:dark;--bg:#0b0b12;--surface:#161621;--surface2:#1f1f2e;--text:#f2f1fa;--muted:#8c8aa3;--line:#2a2a3b;--a1:#ff3d6e;--a2:#7a3cff;--ok:#3ddc7a;--on:#fff;--glow:color-mix(in srgb,var(--a2) 55%,transparent);--grad:linear-gradient(135deg,var(--a1),var(--a2));--glass:rgba(11,11,18,.82);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{margin:0;background:radial-gradient(900px 420px at 90% -8%,color-mix(in srgb,var(--a2) 28%,transparent),transparent 70%) no-repeat,var(--bg);color:var(--text);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:14px 16px 12px}
+.top{display:flex;align-items:center;gap:10px;max-width:1000px;margin:0 auto}
+.brand{flex:1;min-width:0}
+h1{margin:0;font-size:36px;line-height:1.05;font-weight:800;letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#stats{font-size:12px;color:var(--muted);margin-top:4px}
+.logo{width:50px;height:50px;flex:none;filter:drop-shadow(0 4px 14px var(--glow))}
+#inst{display:none;padding:8px 12px;font-size:13px}
+button{font:inherit;color:inherit}
+.btn{background:var(--grad);color:var(--on);border:0;border-radius:12px;padding:10px 16px;font-weight:600;cursor:pointer}
+.btn.alt{background:var(--surface2);color:var(--text)}.btn.del{background:none;color:var(--a1);margin-right:auto}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:0;background:var(--grad);color:var(--on);font-size:32px;line-height:1;box-shadow:0 8px 24px var(--glow);cursor:pointer;z-index:8}
+.tabs{display:flex;gap:4px;margin:14px auto 0;max-width:1000px;background:var(--surface);border-radius:14px;padding:4px}
+.tab{flex:1;border:0;background:none;color:var(--muted);border-radius:10px;padding:8px 2px;font-size:13px;cursor:pointer}
+.tab.on{background:var(--grad);color:var(--on);font-weight:600}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px auto 0;max-width:1000px}
+.filters input{grid-column:1/-1}
+input,select{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;min-width:0;font:inherit}
+input:focus,select:focus{outline:2px solid var(--a2)}
+input[type=checkbox]{width:18px;height:18px;padding:0;accent-color:var(--a1)}
+main{max-width:1000px;margin:0 auto;padding:16px 16px 100px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:14px}
+.card{background:none;border:0;padding:0;text-align:left;cursor:pointer;transition:transform .15s}
+.card:hover{transform:translateY(-3px)}
+.art{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.07)}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.card.wish .art{opacity:.6}
+.b{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.65);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;border-radius:99px;padding:1px 8px;font-size:12px;line-height:1.6}
+.b.fin{background:var(--ok);color:#000}.b.w{left:6px;right:auto}
+.t{margin-top:7px;font-size:13px;font-weight:600;line-height:1.25;color:var(--text)}
+.s{font-size:11px;color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:60px 10px}.empty .btn{margin:6px 4px}
+dialog{border:1px solid var(--line);border-radius:20px;padding:0;background:var(--surface);color:var(--text);width:min(440px,94vw);max-height:92vh}
+dialog::backdrop{background:rgba(5,5,10,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.f{display:flex;flex-direction:column;gap:10px;padding:18px}
+.f label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.f label.c{flex-direction:row;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+.f input,.f select{background:var(--bg)}
+.f .pv{width:72px;aspect-ratio:3/4}
+.acts{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.pal{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer;padding:0}
+.pal i{width:22px;height:22px;border-radius:50%;background:var(--grad);box-shadow:0 0 12px var(--glow)}
+.sws{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sw{display:flex;align-items:center;gap:10px;background:var(--surface2);border:2px solid transparent;border-radius:14px;padding:10px;cursor:pointer;text-align:left;font-size:14px}
+.sw i{width:28px;height:28px;border-radius:50%;flex:none;box-shadow:0 0 12px var(--c)}
+.sw.on{border-color:var(--a1)}
+</style>
+</head>
+<body>
+<header>
+ <div class="top"><div class="brand"><h1>Game Library</h1><div id="stats"></div></div><button class="btn alt" id="inst" type="button">Install</button><button class="pal" id="pal" type="button" aria-label="Change theme"><i></i></button><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Game Library logo"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--a1)"/><stop offset="1" style="stop-color:var(--a2)"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#lg)"/><path d="M20 23h24c5 0 8 3 9 8l1.5 8c.6 3.4-2 6-5 6-2 0-3.5-1-4.5-2.5L42 38H22l-3 4.5C18 44 16.5 45 14.5 45c-3 0-5.6-2.6-5-6l1.5-8c1-5 4-8 9-8z" style="fill:var(--on)"/><path d="M21 29v6M18 32h6" style="stroke:var(--a2)" stroke-width="2.4" stroke-linecap="round"/><circle cx="43" cy="30.5" r="2" style="fill:var(--a1)"/><circle cx="47.5" cy="34.5" r="2" style="fill:var(--a2)"/><path d="M14 53h36" style="stroke:var(--on);stroke-opacity:.6" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+ <div class="tabs" id="tabs"><button class="tab" data-t="collection"></button><button class="tab" data-t="wishlist"></button><button class="tab" data-t="all"></button></div>
+ <div class="filters">
+  <input id="q" type="search" placeholder="Search titles…">
+  <select id="fc"></select><select id="fd"></select><select id="fs"></select>
+  <select id="fst"><option value="">Any status</option><option value="unplayed">Unplayed</option><option value="played">Played</option><option value="inprogress">Played, not finished</option><option value="finished">Finished</option></select>
+ </div>
+</header>
+<main><div class="grid" id="grid"></div><div id="empty"></div></main>
+<button class="fab" id="add" aria-label="Add game">+</button>
+
+<dialog id="dlg"><div class="f">
+ <b id="dt">Add game</b>
+ <label>Title<input id="ti" maxlength="80"></label>
+ <label>Console<select id="co"></select></label>
+ <label>Developer<input id="de" list="dl-d" maxlength="60"></label>
+ <label>Series / IP<input id="se" list="dl-s" maxlength="60"></label>
+ <datalist id="dl-d"></datalist><datalist id="dl-s"></datalist>
+ <label class="c"><input type="checkbox" id="ow"> I own this (uncheck for wishlist)</label>
+ <label class="c"><input type="checkbox" id="pl"> Played</label>
+ <label class="c"><input type="checkbox" id="fi"> Finished</label>
+ <label>Cover image link (optional)<input id="cu" placeholder="https://…"></label>
+ <div class="s">Paste a direct image address. Tip: long-press an image in your browser and choose Copy image address.</div>
+ <label>Or pick an image from your device<input type="file" id="cv" accept="image/*"></label>
+ <div class="art pv" id="pv"></div>
+ <div class="acts"><button class="btn del" id="rm">Delete</button><button class="btn alt" id="cx">Cancel</button><button class="btn" id="sv">Save</button></div>
+</div></dialog>
+
+<dialog id="thm"><div class="f"><b>Accent theme</b><div class="sws" id="sws"></div><div class="acts"><button class="btn" id="tx" type="button">Done</button></div></div></dialog>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY="gamelibrary.v1";
+const CONSOLES=["Nintendo Switch","Nintendo Switch 2","Nintendo 3DS","Wii U","Wii","PlayStation 5","PlayStation 4","Xbox Series X|S","Xbox One","PC","Other"];
+const EX=[["The Legend of Zelda: Breath of the Wild","Nintendo EPD","The Legend of Zelda"],["Mario Kart 8 Deluxe","Nintendo EAD","Mario Kart"],["Animal Crossing: New Horizons","Nintendo EPD","Animal Crossing"],["Super Mario Odyssey","Nintendo EPD","Super Mario"],["Metroid Dread","MercurySteam","Metroid"],["Hades","Supergiant Games","Hades"]];
+let games=[],editing=null,cover="",tab="collection";
+try{games=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(games));return true}catch(e){alert("Storage is full. Remove some cover art and try again.");return false}}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const uniq=k=>[...new Set(games.map(g=>g[k]).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+function fill(id,label,vals){const s=$(id),v=s.value;s.innerHTML='<option value="">'+label+"</option>"+vals.map(x=>"<option>"+esc(x)+"</option>").join("");s.value=vals.includes(v)?v:""}
+function art(g){const h=[...g.title].reduce((a,c)=>a+c.charCodeAt(0),0)%360;
+ const ini=g.title.replace(/^(the|a|an)\s+/i,"").split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+ return{style:`background:linear-gradient(135deg,hsl(${h} 55% 45%),hsl(${(h+50)%360} 60% 28%))`,html:(g.cover?`<img src="${esc(g.cover)}" alt="" referrerpolicy="no-referrer">`:"")+esc(ini)}}
+function render(){
+ const tabs=document.querySelectorAll(".tab"),n={collection:games.filter(g=>g.owned).length,wishlist:games.filter(g=>!g.owned).length,all:games.length};
+ tabs.forEach(b=>{const t=b.dataset.t;b.classList.toggle("on",t===tab);b.textContent={collection:"My Collection",wishlist:"Wishlist",all:"All"}[t]+" ("+n[t]+")"});
+ fill("fc","All consoles",uniq("console"));fill("fd","All developers",uniq("dev"));fill("fs","All series / IP",uniq("series"));
+ const q=$("q").value.trim().toLowerCase(),c=$("fc").value,d=$("fd").value,s=$("fs").value,st=$("fst").value;
+ const list=games.filter(g=>(tab==="all"||(tab==="collection")===!!g.owned)&&(!q||g.title.toLowerCase().includes(q))&&(!c||g.console===c)&&(!d||g.dev===d)&&(!s||g.series===s)&&
+  (!st||(st==="unplayed"?!g.played&&!g.finished:st==="played"?g.played||g.finished:st==="finished"?g.finished:g.played&&!g.finished)))
+  .sort((a,b)=>a.title.localeCompare(b.title));
+ const own=games.filter(g=>g.owned);
+ $("stats").textContent=own.length+" owned · "+own.filter(g=>g.played||g.finished).length+" played · "+own.filter(g=>g.finished).length+" finished";
+ $("grid").innerHTML=list.map(g=>{const a=art(g);
+  return `<button class="card ${g.owned?"":"wish"}" data-id="${g.id}"><div class="art" style="${a.style}">${a.html}${g.finished?'<span class="b fin">✓</span>':g.played?'<span class="b">▶</span>':""}${!g.owned&&tab==="all"?'<span class="b w">Wishlist</span>':""}</div><div class="t">${esc(g.title)}</div><div class="s">${esc(g.console)}</div></button>`}).join("");
+ $("empty").innerHTML=list.length?"":'<div class="empty">'+(games.length?"No games match these filters.":"Nothing here yet. Add your first game, or try a few examples.")+
+  (games.length?"":'<br><button class="btn" id="e1">+ Add a game</button><button class="btn alt" id="e2">Load examples</button>')+"</div>";
+ if($("e1")){$("e1").onclick=()=>openDlg();$("e2").onclick=()=>{EX.forEach(x=>games.push({id:uid(),title:x[0],dev:x[1],series:x[2],console:"Nintendo Switch",owned:true,played:false,finished:false,cover:""}));save();render()}}
+ $("dl-d").innerHTML=uniq("dev").map(x=>`<option value="${esc(x)}">`).join("");$("dl-s").innerHTML=uniq("series").map(x=>`<option value="${esc(x)}">`).join("");
+}
+function setPv(){const a=art({title:$("ti").value||"?",cover});$("pv").style.cssText=a.style;$("pv").innerHTML=a.html}
+function openDlg(id){
+ editing=id?games.find(g=>g.id===id):null;const g=editing||{title:"",console:"Nintendo Switch",dev:"",series:"",owned:tab!=="wishlist",played:false,finished:false,cover:""};
+ $("dt").textContent=editing?"Edit game":"Add game";$("ti").value=g.title;$("co").value=g.console;$("de").value=g.dev;$("se").value=g.series;
+ $("ow").checked=!!g.owned;$("pl").checked=!!g.played;$("fi").checked=!!g.finished;cover=g.cover||"";$("cv").value="";$("cu").value=/^https?:/.test(cover)?cover:"";$("rm").style.display=editing?"":"none";setPv();$("dlg").showModal()}
+function resize(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,300/i.width),c=document.createElement("canvas");c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.8))};i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)})}
+$("co").innerHTML=CONSOLES.map(x=>"<option>"+x+"</option>").join("");
+$("cu").oninput=()=>{cover=$("cu").value.trim();setPv()};
+document.addEventListener("error",e=>{if(e.target.tagName==="IMG")e.target.remove()},true);
+$("add").onclick=()=>openDlg();$("cx").onclick=()=>$("dlg").close();
+$("ti").oninput=setPv;$("fi").onchange=()=>{if($("fi").checked)$("pl").checked=true};
+$("cv").onchange=async e=>{const f=e.target.files[0];if(f){try{cover=await resize(f);$("cu").value="";setPv()}catch(x){alert("Could not read that image.")}}};
+$("sv").onclick=()=>{const title=$("ti").value.trim();if(!title){$("ti").focus();return}
+ const g=editing||{id:uid()};Object.assign(g,{title,console:$("co").value,dev:$("de").value.trim(),series:$("se").value.trim(),owned:$("ow").checked,played:$("pl").checked||$("fi").checked,finished:$("fi").checked,cover});
+ if(!editing)games.push(g);if(save()){$("dlg").close();render()}};
+$("rm").onclick=()=>{if(confirm("Delete this game?")){games=games.filter(g=>g!==editing);save();$("dlg").close();render()}};
+$("grid").onclick=e=>{const c=e.target.closest(".card");if(c)openDlg(c.dataset.id)};
+$("tabs").onclick=e=>{const t=e.target.dataset.t;if(t){tab=t;try{location.hash=t}catch(x){}render()}};
+["q","fc","fd","fs","fst"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));
+function fromHash(){const h=location.hash.slice(1);if(["collection","wishlist","all"].includes(h))tab=h;render()}
+const TH=[["Sunset","#ff3d6e","#7a3cff","#fff"],["Cyber Cyan","#00f0ff","#2979ff","#04121a"],["Neon Green","#39ff14","#00c853","#04140a"],["Hot Pink","#ff2bd6","#8a2bff","#fff"],["Electric Orange","#ffb300","#ff3d00","#1a0b00"],["Ultraviolet","#b44cff","#4f2bff","#fff"],["Switch Red","#ff2d3d","#c4001a","#fff"]],TK="gamelibrary.theme";
+function theme(i,keep){const t=TH[i]||TH[0],r=document.documentElement.style;r.setProperty("--a1",t[1]);r.setProperty("--a2",t[2]);r.setProperty("--on",t[3]);
+ document.querySelectorAll(".sw").forEach((b,j)=>b.classList.toggle("on",j===i));if(!keep)try{localStorage.setItem(TK,i)}catch(e){}}
+$("sws").innerHTML=TH.map((t,i)=>`<button class="sw" data-i="${i}" type="button"><i style="background:linear-gradient(135deg,${t[1]},${t[2]});--c:${t[1]}"></i>${t[0]}</button>`).join("");
+$("sws").onclick=e=>{const b=e.target.closest(".sw");if(b)theme(+b.dataset.i)};
+$("pal").onclick=()=>$("thm").showModal();$("tx").onclick=()=>$("thm").close();
+$("thm").onclick=e=>{if(e.target===$("thm"))$("thm").close()};
+let ti=0;try{ti=+localStorage.getItem(TK)||0}catch(e){}theme(ti,true);
+let dp=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;$("inst").style.display="block"});
+$("inst").onclick=async()=>{if(!dp)return;dp.prompt();try{await dp.userChoice}catch(x){}dp=null;$("inst").style.display="none"};
+addEventListener("appinstalled",()=>{$("inst").style.display="none"});
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+addEventListener("hashchange",fromHash);fromHash();
+</script>
+</body>
+</html>
