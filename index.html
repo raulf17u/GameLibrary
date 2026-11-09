@@ -72,7 +72,7 @@ dialog::backdrop{background:rgba(5,5,10,.72);-webkit-backdrop-filter:blur(4px);b
   <select id="fst"><option value="">Any status</option><option value="unplayed">Unplayed</option><option value="played">Played</option><option value="inprogress">Played, not finished</option><option value="finished">Finished</option></select>
  </div>
 </header>
-<main><div class="grid" id="grid"></div><div id="empty"></div><div id="bulkw" style="text-align:center;margin-top:22px"></div></main>
+<main><div class="grid" id="grid"></div><div id="empty"></div></main>
 <button class="fab" id="add" aria-label="Add game">+</button>
 
 <dialog id="dlg"><div class="f">
@@ -85,8 +85,8 @@ dialog::backdrop{background:rgba(5,5,10,.72);-webkit-backdrop-filter:blur(4px);b
  <label class="c"><input type="checkbox" id="ow"> I own this (uncheck for wishlist)</label>
  <label class="c"><input type="checkbox" id="pl"> Played</label>
  <label class="c"><input type="checkbox" id="fi"> Finished</label>
- <label>Cover image link (optional)<span style="display:flex;gap:6px"><input id="cu" placeholder="https://…"><button type="button" class="btn alt" id="fb">Find</button></span></label>
- <div class="s" id="msg">Press Find to look up the cover by title, or paste a direct image address.</div>
+ <label>Cover image link (optional)<input id="cu" placeholder="https://…"></label>
+ <div class="s">Paste a direct image address. Tip: long-press an image in your browser and choose Copy image address.</div>
  <label>Or pick an image from your device<input type="file" id="cv" accept="image/*"></label>
  <div class="art pv" id="pv"></div>
  <div class="acts"><button class="btn del" id="rm">Delete</button><button class="btn alt" id="cx">Cancel</button><button class="btn" id="sv">Save</button></div>
@@ -124,34 +124,23 @@ function render(){
  $("empty").innerHTML=list.length?"":'<div class="empty">'+(games.length?"No games match these filters.":"Nothing here yet. Add your first game, or try a few examples.")+
   (games.length?"":'<br><button class="btn" id="e1">+ Add a game</button><button class="btn alt" id="e2">Load examples</button>')+"</div>";
  if($("e1")){$("e1").onclick=()=>openDlg();$("e2").onclick=()=>{EX.forEach(x=>games.push({id:uid(),title:x[0],dev:x[1],series:x[2],console:"Nintendo Switch",owned:true,played:false,finished:false,cover:""}));save();render()}}
- const nc=games.filter(g=>!g.cover).length;$("bulkw").innerHTML=nc?`<button class="btn alt" id="bulk" type="button"${bs?" disabled":""}>${bs||"Find missing covers ("+nc+")"}</button>`:"";
  $("dl-d").innerHTML=uniq("dev").map(x=>`<option value="${esc(x)}">`).join("");$("dl-s").innerHTML=uniq("series").map(x=>`<option value="${esc(x)}">`).join("");
 }
 function setPv(){const a=art({title:$("ti").value||"?",cover});$("pv").style.cssText=a.style;$("pv").innerHTML=a.html}
 function openDlg(id){
  editing=id?games.find(g=>g.id===id):null;const g=editing||{title:"",console:"Nintendo Switch",dev:"",series:"",owned:tab!=="wishlist",played:false,finished:false,cover:""};
  $("dt").textContent=editing?"Edit game":"Add game";$("ti").value=g.title;$("co").value=g.console;$("de").value=g.dev;$("se").value=g.series;
- $("ow").checked=!!g.owned;$("pl").checked=!!g.played;$("fi").checked=!!g.finished;cover=g.cover||"";$("cv").value="";$("cu").value=/^https?:/.test(cover)?cover:"";msg("Press Find to look up the cover by title, or paste a direct image address.");$("rm").style.display=editing?"":"none";setPv();$("dlg").showModal()}
+ $("ow").checked=!!g.owned;$("pl").checked=!!g.played;$("fi").checked=!!g.finished;cover=g.cover||"";$("cv").value="";$("cu").value=/^https?:/.test(cover)?cover:"";$("rm").style.display=editing?"":"none";setPv();$("dlg").showModal()}
 function resize(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,300/i.width),c=document.createElement("canvas");c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.8))};i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)})}
 $("co").innerHTML=CONSOLES.map(x=>"<option>"+x+"</option>").join("");
 $("cu").oninput=()=>{cover=$("cu").value.trim();setPv()};
-let bs="";
-function msg(t){$("msg").textContent=t}
-const nz=s=>s.toLowerCase().replace(/^the\s+/,"").replace(/[^a-z0-9]/g,"");
-async function wiki(s){const r=await fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&prop=pageimages&piprop=thumbnail&pithumbsize=400&gsrsearch="+encodeURIComponent(s));if(!r.ok)throw new Error(r.status);const j=await r.json();return Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index)}
-async function lookup(title){for(const q of [title+" video game",title]){const p=(await wiki(q)).find(x=>x.thumbnail&&nz(x.title).includes(nz(title)));if(p)return p.thumbnail.source}return ""}
-async function auto(list,bulk){let n=0,i=0;for(const g of list){i++;if(bulk){bs="Finding… "+i+"/"+list.length;render()}try{const u=await lookup(g.title);if(u&&!g.cover){g.cover=u;n++;save()}}catch(e){if(bulk)break}}bs="";render();return n}
-$("fb").onclick=async()=>{const t=$("ti").value.trim();if(!t)return msg("Type the title first.");msg("Searching…");
- try{const u=await lookup(t);if(u){cover=u;$("cu").value=u;setPv();msg("Cover found. You can still paste a different link.")}else msg("No match found. Try the exact title or paste a link.")}
- catch(e){msg("Lookup failed. It needs an internet connection and does not run on the Claude preview page.")}};
-$("bulkw").onclick=e=>{if(e.target.id==="bulk"&&!bs)auto(games.filter(g=>!g.cover),true).then(n=>{const b=$("bulk");if(b)b.textContent=n?"Added "+n+(n>1?" covers":" cover"):"No covers found"})};
 document.addEventListener("error",e=>{if(e.target.tagName==="IMG")e.target.remove()},true);
 $("add").onclick=()=>openDlg();$("cx").onclick=()=>$("dlg").close();
 $("ti").oninput=setPv;$("fi").onchange=()=>{if($("fi").checked)$("pl").checked=true};
 $("cv").onchange=async e=>{const f=e.target.files[0];if(f){try{cover=await resize(f);$("cu").value="";setPv()}catch(x){alert("Could not read that image.")}}};
 $("sv").onclick=()=>{const title=$("ti").value.trim();if(!title){$("ti").focus();return}
  const g=editing||{id:uid()};Object.assign(g,{title,console:$("co").value,dev:$("de").value.trim(),series:$("se").value.trim(),owned:$("ow").checked,played:$("pl").checked||$("fi").checked,finished:$("fi").checked,cover});
- if(!editing)games.push(g);if(save()){$("dlg").close();render();if(!g.cover)auto([g])}};
+ if(!editing)games.push(g);if(save()){$("dlg").close();render()}};
 $("rm").onclick=()=>{if(confirm("Delete this game?")){games=games.filter(g=>g!==editing);save();$("dlg").close();render()}};
 $("grid").onclick=e=>{const c=e.target.closest(".card");if(c)openDlg(c.dataset.id)};
 $("tabs").onclick=e=>{const t=e.target.dataset.t;if(t){tab=t;try{location.hash=t}catch(x){}render()}};
