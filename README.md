@@ -1,6 +1,7 @@
 # Game Library
 
-A simple, dark-themed tracker for your game collection and wishlist, with filters by console, developer, series and play status. It works offline and can be installed to the Android home screen.
+A simple tracker for your game collection and wishlist, with filters by console, developer, series and play status. 
+It works offline and can be installed to the Android home screen.
 
 ## Run it
 
